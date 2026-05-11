@@ -13,12 +13,45 @@ import { HiOutlineLogout } from "react-icons/hi";
 
 const Sidebar: React.FC = () => {
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
-
-  const handleSubMenu = (menu: string) => {
-    setOpenSubMenu(openSubMenu === menu ? null : menu);
-  };
+  const [subMenuActive, setSubMenuActive] = useState<{ [key: string]: string }>({});
 
   const activeClass = "bg-purple-100 text-purple-700";
+
+  const handleSubMenu = (menu: string, firstItem?: string) => {
+    if (openSubMenu === menu) {
+      setOpenSubMenu(null);
+    } else {
+      setOpenSubMenu(menu);
+      if (firstItem) {
+        setSubMenuActive(prev => ({ ...prev, [menu]: firstItem }));
+      }
+    }
+  };
+
+  const renderSubMenu = (menu: string, items: { name: string; to: string }[]) => {
+    return (
+      openSubMenu === menu && (
+        <ul className="pl-8 space-y-1">
+          {items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
+                  subMenuActive[menu] === item.to || isActive ? "bg-purple-200" : ""
+                }`
+              }
+              onClick={() =>
+                setSubMenuActive((prev) => ({ ...prev, [menu]: item.to }))
+              }
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </ul>
+      )
+    );
+  };
 
   return (
     <div className="w-64 min-h-screen bg-white shadow-lg fixed flex flex-col justify-between">
@@ -42,7 +75,7 @@ const Sidebar: React.FC = () => {
         </NavLink>
 
         <NavLink
-          to="orders"
+          to="/orders"
           className={({ isActive }) =>
             `flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-purple-100 ${
               isActive ? activeClass : ""
@@ -53,86 +86,41 @@ const Sidebar: React.FC = () => {
           <span>Orders</span>
         </NavLink>
 
-        {/* Order Management Submenu */}
+        {/* Order Management */}
         <div className="flex flex-col">
           <div
-            onClick={() => handleSubMenu("orderManagement")}
+            onClick={() =>
+              handleSubMenu("orderManagement", "/order-management/pending")
+            }
             className="flex items-center gap-3 p-2 hover:bg-purple-100 rounded cursor-pointer"
           >
             <BsFillCartCheckFill className="w-5 h-5" />
             <span>Order Management</span>
             <span>{openSubMenu === "orderManagement" ? "▲" : "▼"}</span>
           </div>
-          {openSubMenu === "orderManagement" && (
-            <ul className="pl-8 space-y-1">
-              <NavLink
-                to="/order-management/pending"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Pending
-              </NavLink>
-              <NavLink
-                to="/order-management/completed"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Completed
-              </NavLink>
-            </ul>
-          )}
+          {renderSubMenu("orderManagement", [
+            { name: "Pending", to: "/order-management/pending" },
+            { name: "Completed", to: "/order-management/completed" },
+          ])}
         </div>
 
-{/* Products */}
+        {/* Products */}
         <div className="flex flex-col">
           <div
-            onClick={() => handleSubMenu("products")}
+            onClick={() =>
+              handleSubMenu("products", "/products/list")
+            }
             className="flex items-center gap-3 p-2 hover:bg-purple-100 rounded cursor-pointer"
           >
             <BsFillCartCheckFill className="w-5 h-5" />
             <span>Products</span>
             <span>{openSubMenu === "products" ? "▲" : "▼"}</span>
           </div>
-          {openSubMenu === "products" && (
-            <ul className="pl-8 space-y-1">
-              <NavLink
-                to="/products/list"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                List
-              </NavLink>
-              <NavLink
-                to="/products/create"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Create
-              </NavLink>
-               <NavLink
-                to="/products/details"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Details
-              </NavLink>
-            </ul>
-          )}
+          {renderSubMenu("products", [
+            { name: "List", to: "/products/list" },
+            { name: "Create", to: "/products/create" },
+            { name: "Details", to: "/products/details" },
+          ])}
         </div>
 
         <NavLink
@@ -147,50 +135,21 @@ const Sidebar: React.FC = () => {
           <span>Categories</span>
         </NavLink>
 
-{/* seller store */}
-<div className="flex flex-col">
+        {/* Sellers */}
+        <div className="flex flex-col">
           <div
-            onClick={() => handleSubMenu("seller")}
+            onClick={() => handleSubMenu("seller", "/seller/store")}
             className="flex items-center gap-3 p-2 hover:bg-purple-100 rounded cursor-pointer"
           >
             <BsFillCartCheckFill className="w-5 h-5" />
             <span>Sellers</span>
             <span>{openSubMenu === "seller" ? "▲" : "▼"}</span>
           </div>
-          {openSubMenu === "seller" && (
-            <ul className="pl-8 space-y-1">
-              <NavLink
-                to="/seller/store"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Stores
-              </NavLink>
-              <NavLink
-                to="/seller/withdrawal"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Withdrawal
-              </NavLink>
-               <NavLink
-                to="/seller/vendors"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Vendors
-              </NavLink>
-            </ul>
-          )}
+          {renderSubMenu("seller", [
+            { name: "Stores", to: "/seller/store" },
+            { name: "Withdrawal", to: "/seller/withdrawal" },
+            { name: "Vendors", to: "/seller/vendors" },
+          ])}
         </div>
 
         <NavLink
@@ -217,40 +176,21 @@ const Sidebar: React.FC = () => {
           <span>Payments</span>
         </NavLink>
 
-        {/* Invoice Submenu */}
+        {/* Invoice */}
         <div className="flex flex-col">
           <div
-            onClick={() => handleSubMenu("invoice")}
+            onClick={() => handleSubMenu("invoice", "/invoice/lists")}
             className="flex items-center gap-3 p-2 hover:bg-purple-100 rounded cursor-pointer"
           >
             <TbTruckDelivery className="w-5 h-5" />
             <span>Invoice</span>
             <span>{openSubMenu === "invoice" ? "▲" : "▼"}</span>
           </div>
-          {openSubMenu === "invoice" && (
-            <ul className="pl-8 space-y-1">
-              <NavLink
-                to="/invoice/pending"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Pending
-              </NavLink>
-              <NavLink
-                to="/invoice/paid"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Paid
-              </NavLink>
-            </ul>
-          )}
+          {renderSubMenu("invoice", [
+            { name: "List", to: "/invoice/lists" },
+            { name: "Details", to: "/invoice/details" },
+            { name: "Create", to: "/invoice/create" },
+          ])}
         </div>
 
         <NavLink
@@ -280,40 +220,20 @@ const Sidebar: React.FC = () => {
           <span>Settings</span>
         </NavLink>
 
-        {/* Authentication Submenu */}
+        {/* Authentication */}
         <div className="flex flex-col">
           <div
-            onClick={() => handleSubMenu("authentication")}
+            onClick={() => handleSubMenu("authentication", "/auth/login")}
             className="flex items-center gap-3 p-2 hover:bg-purple-100 rounded cursor-pointer"
           >
             <FiLock className="w-5 h-5" />
             <span>Authentication</span>
             <span>{openSubMenu === "authentication" ? "▲" : "▼"}</span>
           </div>
-          {openSubMenu === "authentication" && (
-            <ul className="pl-8 space-y-1">
-              <NavLink
-                to="/auth/login"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Login
-              </NavLink>
-              <NavLink
-                to="/auth/register"
-                className={({ isActive }) =>
-                  `block p-1 rounded cursor-pointer hover:bg-purple-50 ${
-                    isActive ? "bg-purple-200" : ""
-                  }`
-                }
-              >
-                Register
-              </NavLink>
-            </ul>
-          )}
+          {renderSubMenu("authentication", [
+            { name: "Login", to: "/auth/login" },
+            { name: "Register", to: "/auth/signup" },
+          ])}
         </div>
 
         <NavLink
